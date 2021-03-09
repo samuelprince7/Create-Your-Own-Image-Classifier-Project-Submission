@@ -13397,6 +13397,7 @@ GPU Workspaces about Keeping Your Session Active. You'll want to include code fr
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># choose a pre trained network &amp; load it</span>
 <span class="c1"># we tried ResNet50 but only produced 40% accuracy</span>
 <span class="c1">#trying other models</span>
+<span class="c1">#success was produced with vgg16 at 83.5% accuracy at the end of epoch 20</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">vgg16</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">model</span> 
 </pre></div>
@@ -13516,8 +13517,8 @@ GPU Workspaces about Keeping Your Session Active. You'll want to include code fr
                           <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span> <span class="c1">#was 0.2</span>
                           <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">102</span><span class="p">),</span> 
                           <span class="n">nn</span><span class="o">.</span><span class="n">LogSoftmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-<span class="c1"># 777 the below code is for resnet</span>
-<span class="c1"># model.fc = classifier #777</span>
+<span class="c1"># model.fc = classifier #777 this would be for resnet, but resnet does not seem to work as well as vgg </span>
+<span class="c1">#below adjusted for vgg16</span>
 <span class="n">model</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">classifier</span> 
 <span class="n">model</span>
 </pre></div>
@@ -13600,7 +13601,7 @@ GPU Workspaces about Keeping Your Session Active. You'll want to include code fr
 <span class="c1"># set the learning rate to 0.001 </span>
 <span class="c1"># now our model is set up well to preform the actual training </span>
 <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">NLLLoss</span><span class="p">()</span>
-<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span> <span class="c1">#was lr=0.003</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span> <span class="c1">#was lr=0.003 </span>
 <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 </pre></div>
 
@@ -13704,9 +13705,9 @@ GPU Workspaces about Keeping Your Session Active. You'll want to include code fr
     <span class="c1">#model.train() #EDIT</span>
     <span class="c1"># we use the images formated into tensors from dataloaders[&#39;train_loader&#39;]</span>
     <span class="k">for</span> <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">dataloaders</span><span class="p">[</span><span class="s1">&#39;train_loader&#39;</span><span class="p">]:</span>
-        <span class="c1">#we take a step in our learning journey </span>
+        <span class="c1">#we have the model take a step in it&#39;s learning journey </span>
         <span class="n">steps</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="c1"># move the tensor data over to the GPU so it can process everything even faster</span>
+        <span class="c1"># move the tensor data over to the GPU so it can process things faster</span>
         <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
         <span class="c1"># zero out gradients</span>
         <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
@@ -13718,7 +13719,7 @@ GPU Workspaces about Keeping Your Session Active. You'll want to include code fr
         <span class="c1"># do a backwards pass, or backpropigation so it can learn from it&#39;s own mistakes</span>
         <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
         <span class="c1"># now it learns one step forward, so we pass that as a forward step in the learning model</span>
-        <span class="c1"># it&#39;s kind of like we are telling it how to think and learn from it&#39;s previous mistake</span>
+        <span class="c1"># it&#39;s kind of like we are telling it how to think and learn from it&#39;s previous mistakes that is</span>
         <span class="c1">#found in the backprop </span>
         <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
         <span class="c1"># finally we have to increment the running loss, so we keep track of of our total &#39;training loss&#39;</span>
@@ -13749,7 +13750,7 @@ GPU Workspaces about Keeping Your Session Active. You'll want to include code fr
                 <span class="c1">#calculate accuaracy from the equality </span>
                 <span class="n">accuracy</span> <span class="o">+=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">equality</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">))</span>
         
-                <span class="c1">#we want to keep track of our epochs so we&#39;ll use the f string format</span>
+                <span class="c1">#we want to keep track of our epochs so we&#39;ll use the f string format for this</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Epoch {epoch+1}/</span><span class="si">{epochs}</span><span class="s2">...&quot;</span>
                 <span class="n">f</span><span class="s2">&quot;Train loss: {running_loss/print_every:.3f}...&quot;</span>
                 <span class="n">f</span><span class="s2">&quot;Validation loss: {validation_loss/len(dataloaders[&#39;val_loader&#39;]):.3f}...&quot;</span>
@@ -13920,7 +13921,7 @@ Epoch 20/20...Train loss: 1.841...Validation loss: 0.768...Validation accuracy: 
 <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
 <span class="n">test_loss</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">accuracy</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="c1"># get the images and label tensors fro the testing set in dataloaders[&#39;test_loader&#39;]</span>
+<span class="c1"># get the images and label tensors from the testing set in dataloaders[&#39;test_loader&#39;]</span>
 <span class="k">for</span> <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">dataloaders</span><span class="p">[</span><span class="s1">&#39;test_loader&#39;</span><span class="p">]:</span>
     <span class="c1">#transfer tensors over to the GPU</span>
     <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
@@ -13947,6 +13948,7 @@ Epoch 20/20...Train loss: 1.841...Validation loss: 0.768...Validation accuracy: 
 <span class="c1"># 2:52pm , the added layer decreased accuracy from 41% to 27% (let&#39;s try changing dropout and/or learn-rate) </span>
 <span class="c1"># 3:03pm , chagning dropout from .2 to .5 decreased accuracy from 27% to 11% (0.105). let&#39;s change learn-rate  </span>
 <span class="c1"># 3:11pm , changing learn-rate from .003 to .001 INCREASED accuracy from 11% to 38%. let&#39;s change our layers now</span>
+<span class="c1"># we added a layer and changed the ratios approriate to vgg16. you&#39;ll have to play around with the numbers on this</span>
 <span class="c1"># increasing epoch to 20 and build the validation loop now </span>
 </pre></div>
 
@@ -14141,7 +14143,9 @@ The state dict keys:
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">sp_save_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">training_datasets</span><span class="p">,</span> <span class="n">input_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="n">arch</span><span class="p">,</span> <span class="n">hidden_layer1</span><span class="p">,</span> <span class="n">hidden_layer2</span><span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># we need to do functional programming now in order to </span>
+<span class="c1">#build the command line application </span>
+<span class="k">def</span> <span class="nf">sp_save_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">training_datasets</span><span class="p">,</span> <span class="n">input_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="n">arch</span><span class="p">,</span> <span class="n">hidden_layer1</span><span class="p">,</span> <span class="n">hidden_layer2</span><span class="p">):</span>
     
     <span class="n">model_checkpoint</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;model_checkpoint1.pth&#39;</span><span class="p">)</span>
     
@@ -14197,9 +14201,9 @@ The state dict keys:
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># this was an original load function for the checkpoint</span>
-<span class="c1"># I beielve I was making this task too difficult with the fc_model aspect</span>
+<span class="c1"># I beielve I was making this task way too difficult at first with the fc_model aspect</span>
 <span class="c1">#as that did not even work correctly when run</span>
-<span class="c1"># however the above function seems to be more concise and seems to works very well </span>
+<span class="c1"># however the above function seems to be more concise and works even better</span>
 
 
 <span class="c1">##def load_checkpoint(path):</span>
@@ -14215,14 +14219,6 @@ The state dict keys:
 <span class="c1">##                             checkpoint[&#39;state_dict&#39;])</span>
 <span class="c1">##    model.load_state_dict(checkpoint[&#39;state_dict&#39;])</span>
 <span class="c1">##    return model</span>
-
-
-<span class="c1"># to rebuild the same model as the one we trained on</span>
-<span class="c1"># using this fuction </span>
-<span class="c1"># do this</span>
-<span class="c1"># rebuilt_detailed_checkpoint = load_checkpoint(&#39;detailed_checkpoint.pth&#39;)</span>
-<span class="c1"># rebuilt_model_checkpoint = load_checkpoint(&#39;model_checkpoint.pth&#39;)</span>
-<span class="c1"># print(model)</span>
 </pre></div>
 
     </div>
@@ -14235,7 +14231,12 @@ The state dict keys:
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to rebuild the same model as the one we trained on</span>
+
+<span class="c1"># do this</span>
+<span class="c1"># rebuilt_detailed_checkpoint = load_checkpoint(&#39;detailed_checkpoint.pth&#39;)</span>
+<span class="c1"># rebuilt_model_checkpoint = load_checkpoint(&#39;model_checkpoint.pth&#39;)</span>
+<span class="c1"># print(model)</span>
 </pre></div>
 
     </div>
@@ -14317,6 +14318,7 @@ The state dict keys:
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">rebuilt_model_checkpoint</span>
 <span class="c1"># this works correctly</span>
+<span class="c1"># let&#39;s refer to this as the pytorch &#39;origin model&#39;</span>
 <span class="c1"># so torch.save(model, &#39;model_checkpoint.pth&#39;)   captured the &#39;origin model&#39;</span>
 </pre></div>
 
@@ -14415,7 +14417,16 @@ The state dict keys:
 <span class="c1">#the state of the optimizer is not needed in the second part of this project </span>
 <span class="c1"># this is especially important so we can use the model in the future</span>
 <span class="c1"># don&#39;t forget the difference between your paths : &#39;model_checkpoint.pth&#39;  VS  &#39;detailed_checkpoint.pth&#39;</span>
+<span class="c1"># the most important thing you need here is the class_to_idx to map the actual flower names</span>
+
 <span class="c1"># the most imporat thing you need here is the class_to_idx to map the actual flower names</span>
+<span class="c1"># let&#39;s refer to this as the &#39;detailed checkpoint&#39;, that includes the large class_to_idx map</span>
+
+<span class="c1">#i have left my notes in this section because it reincforces how I learned</span>
+<span class="c1">#we do not need the optimizer in the 2nd part of this project, we&#39;d only need the optimizer</span>
+<span class="c1">#IF we wanted to continue training the model</span>
+<span class="c1">#however our task in part two will only need the class_to_idx map</span>
+<span class="c1">#as we will have to do some heavy lifting with the class_to_idx map to pull out the names of the flowers</span>
 </pre></div>
 
     </div>
@@ -17428,7 +17439,7 @@ The state dict keys:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">Image</span>
@@ -17482,7 +17493,7 @@ The state dict keys:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -17528,7 +17539,7 @@ The state dict keys:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">imshow</span><span class="p">(</span><span class="n">process_image</span><span class="p">(</span><span class="s1">&#39;flowers/train/1/image_06734.jpg&#39;</span><span class="p">))</span>
@@ -17547,13 +17558,13 @@ The state dict keys:
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[12]:</div>
+    <div class="prompt output_prompt">Out[13]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7fb3c6ce2470&gt;</pre>
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7efff2fc2a20&gt;</pre>
 </div>
 
 </div>
@@ -17637,84 +17648,6 @@ The state dict keys:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
 <div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
@@ -17773,7 +17706,7 @@ The state dict keys:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">topk</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
@@ -17807,7 +17740,7 @@ The state dict keys:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">probs</span><span class="p">,</span> <span class="n">classes</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="s1">&#39;flowers/train/1/image_06736.jpg&#39;</span><span class="p">,</span> <span class="n">rebuilt_model_checkpoint</span><span class="p">)</span>
@@ -17820,7 +17753,7 @@ The state dict keys:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
@@ -17856,7 +17789,11 @@ The state dict keys:
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># the next few lines below show the process we went through</span>
+<span class="c1"># to finally get predict to work correctly</span>
+<span class="c1">#this was a long proces of printing data</span>
+<span class="c1"># and making tons of changes</span>
+<span class="c1"># to get the output to work</span>
 </pre></div>
 
     </div>
@@ -17873,7 +17810,7 @@ The state dict keys:
 <span class="c1"># as little code as possible</span>
 <span class="c1"># so it is concise AND works well</span>
 <span class="c1"># if there is a way we can leverage pytorch to do the heavy lifting for us</span>
-<span class="c1"># that is what it&#39;s there for, right?</span>
+<span class="c1"># this is what we want</span>
 </pre></div>
 
     </div>
@@ -17884,101 +17821,6 @@ The state dict keys:
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[144]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># let&#39;s have as a goal to design this with</span>
-<span class="c1"># as little code as possible</span>
-<span class="c1"># so it is concise AND works well</span>
-<span class="c1"># if there is a way we can leverage pytorch to do the heavy lifting for us</span>
-<span class="c1"># that is what it&#39;s there for, right?</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[62]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[202]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[203]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[204]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span> 
@@ -18023,7 +17865,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[206]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># this is with data from </span>
@@ -18033,25 +17875,6 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>tensor([[ 0.4806,  0.1688,  0.1038,  0.0836,  0.0685]], device=&#39;cuda:0&#39;)
-tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -18213,7 +18036,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">probabilities</span> <span class="o">=</span> <span class="n">probs</span>
@@ -18226,10 +18049,11 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">p_c_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#map key=classes to value=probabilities </span>
+<span class="n">p_c_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">probabilities</span><span class="p">)):</span>
     <span class="n">p_c_dict</span><span class="p">[</span><span class="n">classes</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span> <span class="o">=</span> <span class="n">probabilities</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
     
@@ -18261,36 +18085,39 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dict_origin_class2idx</span> <span class="o">=</span> <span class="n">rebuilt_detailed_checkpoint</span><span class="p">[</span><span class="s1">&#39;class_to_idx&#39;</span><span class="p">]</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dict_origin_class2idx</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">value</span> <span class="ow">in</span> <span class="n">dict_origin_class2idx</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
 <div class="prompt input_prompt">In&nbsp;[21]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">new_order_prob_class_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#build a dictionary including the class_to_idx from the model  </span>
+<span class="n">dict_origin_class2idx</span> <span class="o">=</span> <span class="n">rebuilt_detailed_checkpoint</span><span class="p">[</span><span class="s1">&#39;class_to_idx&#39;</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#preform inversion </span>
+<span class="n">dict_origin_class2idx</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">value</span> <span class="ow">in</span> <span class="n">dict_origin_class2idx</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#now map the flower IDnumber to the probability </span>
+<span class="n">new_order_prob_class_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">dict_origin_class2idx</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">p_c_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
@@ -18309,7 +18136,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[21]:</div>
+    <div class="prompt output_prompt">Out[23]:</div>
 
 
 
@@ -18330,10 +18157,11 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">flower_prob_list</span> <span class="o">=</span> <span class="p">[]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#now map the flower name to the probability </span>
+<span class="n">flower_prob_list</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">new_order_prob_class_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
     <span class="n">flower_prob_dictionary</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cat_to_name</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -18355,7 +18183,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[22]:</div>
+    <div class="prompt output_prompt">Out[24]:</div>
 
 
 
@@ -18376,10 +18204,13 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">flower_prob_list</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#now create a simple pandas dataframe from flower_prob_list</span>
+    <span class="c1">#print(flower_prob_dictionary)</span>
+    <span class="c1">#so it can be easily mapped and plotted to matplotlib</span>
+<span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">flower_prob_list</span><span class="p">)</span>
 <span class="n">dataframe</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 
@@ -18393,7 +18224,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[23]:</div>
+    <div class="prompt output_prompt">Out[25]:</div>
 
 
 
@@ -18459,7 +18290,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># sort the dataframe by probability </span>
@@ -18477,7 +18308,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[24]:</div>
+    <div class="prompt output_prompt">Out[26]:</div>
 
 
 
@@ -18543,7 +18374,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">dataframe</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
@@ -18559,7 +18390,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[25]:</div>
+    <div class="prompt output_prompt">Out[27]:</div>
 
 
 
@@ -18576,7 +18407,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">dataframe</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
@@ -18604,13 +18435,13 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[26]:</div>
+    <div class="prompt output_prompt">Out[28]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7fb3c69e9f28&gt;</pre>
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7efff2bbb5c0&gt;</pre>
 </div>
 
 </div>
@@ -18646,7 +18477,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># TODO: Display an image along with the top 5 classes</span>
@@ -18676,13 +18507,13 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[27]:</div>
+    <div class="prompt output_prompt">Out[29]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7fb3c69accf8&gt;</pre>
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7efff2b78cc0&gt;</pre>
 </div>
 
 </div>
@@ -18708,7 +18539,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataframe</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])),</span><span class="n">dataframe</span><span class="p">[</span><span class="s1">&#39;prob&#39;</span><span class="p">])</span>
@@ -18745,7 +18576,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -18805,7 +18636,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">sp_sanity_checker</span><span class="p">(</span><span class="n">cat_to_name</span><span class="p">,</span> <span class="n">image_path</span><span class="p">,</span> <span class="n">model_checkpoint</span><span class="p">,</span> <span class="n">detailed_checkpoint</span><span class="p">):</span>
@@ -18867,7 +18698,7 @@ tensor([[ 87,   0,  76,  30,  84]], device=&#39;cuda:0&#39;)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sp_sanity_checker</span><span class="p">(</span><span class="n">cat_to_name</span><span class="p">,</span> <span class="s1">&#39;flowers/train/1/image_06737.jpg&#39;</span><span class="p">,</span> <span class="n">rebuilt_model_checkpoint</span><span class="p">,</span> <span class="n">rebuilt_detailed_checkpoint</span><span class="p">)</span>
